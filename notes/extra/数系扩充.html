@@ -1,0 +1,1017 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>数系的公理体系：从自然数到复数</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&family=Noto+Serif+SC:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          'bg':        'hsl(248, 20%, 97%)',
+          'surface':   'hsl(0, 0%, 100%)',
+          'text':      'hsl(248, 15%, 14%)',
+          'text-muted':'hsl(248, 8%, 46%)',
+          'primary':   'hsl(250, 70%, 48%)',
+          'primary-lt':'hsl(250, 65%, 58%)',
+          'accent':    'hsl(220, 80%, 55%)',
+          'accent-lt': 'hsl(220, 75%, 65%)',
+          'border':    'hsl(248, 15%, 90%)',
+          'tag-n':     'hsl(250, 60%, 94%)',
+          'tag-z':     'hsl(220, 55%, 93%)',
+          'tag-q':     'hsl(200, 55%, 93%)',
+          'tag-r':     'hsl(180, 50%, 92%)',
+          'tag-c':     'hsl(270, 50%, 94%)',
+          'grad-from': 'hsl(250, 55%, 35%)',
+          'grad-to':   'hsl(220, 65%, 42%)',
+        },
+        fontFamily: {
+          display: ['"Playfair Display"', '"Noto Serif SC"', 'serif'],
+          body:    ['-apple-system', '"Segoe UI"', '"PingFang SC"', '"Microsoft YaHei"', 'sans-serif'],
+          mono:    ['"JetBrains Mono"', '"SF Mono"', '"Fira Code"', 'monospace'],
+        },
+      }
+    }
+  };
+</script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  img, video { max-width: 100%; height: auto; display: block; }
+  body { overflow-wrap: break-word; }
+
+  html { scroll-behavior: smooth; scroll-padding-top: 4rem; }
+
+  /* ── 渐变头部 ── */
+  .hero-gradient {
+    background: linear-gradient(135deg, hsl(250,55%,30%) 0%, hsl(250,50%,38%) 30%, hsl(220,60%,42%) 70%, hsl(210,65%,45%) 100%);
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-gradient::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 20% 50%, hsla(260,80%,70%,0.12) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 80% at 80% 30%, hsla(210,80%,65%,0.10) 0%, transparent 60%),
+      radial-gradient(circle at 50% 80%, hsla(250,70%,60%,0.08) 0%, transparent 50%);
+    pointer-events: none;
+  }
+  .hero-gradient::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      radial-gradient(circle at 15% 25%, hsla(0,0%,100%,0.04) 0px, transparent 1px),
+      radial-gradient(circle at 75% 60%, hsla(0,0%,100%,0.03) 0px, transparent 1px),
+      radial-gradient(circle at 40% 80%, hsla(0,0%,100%,0.05) 0px, transparent 1px);
+    background-size: 80px 80px, 120px 120px, 100px 100px;
+    pointer-events: none;
+  }
+
+  /* ── 导航栏 ── */
+  .nav-blur {
+    backdrop-filter: blur(16px) saturate(140%);
+    -webkit-backdrop-filter: blur(16px) saturate(140%);
+    background: hsla(248,20%,97%,0.82);
+    border-bottom: 1px solid hsla(248,15%,88%,0.6);
+  }
+  .nav-link {
+    position: relative;
+    transition: color 0.2s;
+  }
+  .nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: hsl(250,70%,48%);
+    border-radius: 1px;
+    transition: width 0.25s ease;
+  }
+  .nav-link:hover::after,
+  .nav-link.active::after { width: 100%; }
+  .nav-link.active { color: hsl(250,70%,48%); }
+
+  /* ── 卡片 ── */
+  .axiom-card {
+    background: hsl(0,0%,100%);
+    border: 1px solid hsl(248,15%,90%);
+    border-radius: 1rem;
+    padding: 1.75rem;
+    transition: box-shadow 0.3s ease, transform 0.25s ease;
+  }
+  .axiom-card:hover {
+    box-shadow: 0 8px 30px hsla(250,40%,30%,0.10), 0 2px 8px hsla(250,30%,30%,0.06);
+    transform: translateY(-2px);
+  }
+
+  /* ── 性质标签 ── */
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .tag:hover { transform: scale(1.05); }
+
+  /* ── 公理编号圆圈 ── */
+  .axiom-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    background: linear-gradient(135deg, hsl(250,70%,48%), hsl(220,80%,55%));
+    color: white;
+    font-weight: 700;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+  }
+
+  /* ── 数学公式块 ── */
+  .math-block {
+    background: hsl(248,20%,96%);
+    border-left: 3px solid hsl(250,60%,60%);
+    border-radius: 0 0.5rem 0.5rem 0;
+    padding: 1rem 1.25rem;
+    font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
+    font-size: 0.9rem;
+    line-height: 1.7;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-break: break-all;
+  }
+
+  /* ── 数系流程图 ── */
+  .flow-node {
+    background: white;
+    border: 2px solid hsl(248,15%,88%);
+    border-radius: 0.75rem;
+    padding: 0.75rem 1.25rem;
+    text-align: center;
+    transition: all 0.3s;
+    position: relative;
+  }
+  .flow-node:hover {
+    border-color: hsl(250,60%,55%);
+    box-shadow: 0 4px 20px hsla(250,40%,30%,0.10);
+  }
+  .flow-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: hsl(250,40%,55%);
+    font-size: 1.2rem;
+    font-weight: 700;
+  }
+
+  /* ── 对比表 ── */
+  .compare-table th {
+    background: linear-gradient(135deg, hsl(250,55%,35%), hsl(220,65%,42%));
+    color: white;
+    font-weight: 600;
+    padding: 0.85rem 1rem;
+    text-align: left;
+    font-size: 0.9rem;
+  }
+  .compare-table td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid hsl(248,15%,90%);
+    font-size: 0.88rem;
+    line-height: 1.55;
+  }
+  .compare-table tr:hover td {
+    background: hsl(248,20%,97%);
+  }
+
+  /* ── 响应式 ── */
+  @media (max-width: 768px) {
+    .axiom-card { padding: 1.25rem; }
+    .math-block { font-size: 0.8rem; padding: 0.75rem 1rem; }
+    .compare-table { font-size: 0.78rem; }
+    .compare-table th,
+    .compare-table td { padding: 0.5rem 0.65rem; }
+  }
+
+  /* ── 渐入动画 ── */
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .reveal {
+    animation: fadeInUp 0.6s ease both;
+  }
+
+  /* ── 装饰性数学符号背景 ── */
+  .math-bg-pattern {
+    position: absolute;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.4rem;
+    color: hsla(0,0%,100%,0.06);
+    pointer-events: none;
+    user-select: none;
+  }
+</style>
+</head>
+<body class="bg-bg text-text font-body antialiased">
+
+<!-- ═══════════════ 导航栏 ═══════════════ -->
+<nav class="nav-blur sticky top-0 z-50">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between h-14">
+    <a href="#hero" class="font-display text-lg font-semibold text-primary tracking-tight shrink-0">
+      数系公理体系
+    </a>
+    <div class="hidden md:flex items-center gap-1 text-sm font-medium">
+      <a href="#overview"   class="nav-link px-2.5 py-1.5 rounded-lg text-text-muted hover:text-text transition-colors">总览</a>
+      <a href="#natural"    class="nav-link px-2.5 py-1.5 rounded-lg text-text-muted hover:text-text transition-colors">ℕ 自然数</a>
+      <a href="#integer"    class="nav-link px-2.5 py-1.5 rounded-lg text-text-muted hover:text-text transition-colors">ℤ 整数</a>
+      <a href="#rational"   class="nav-link px-2.5 py-1.5 rounded-lg text-text-muted hover:text-text transition-colors">ℚ 有理数</a>
+      <a href="#real"       class="nav-link px-2.5 py-1.5 rounded-lg text-text-muted hover:text-text transition-colors">ℝ 实数</a>
+      <a href="#complex"    class="nav-link px-2.5 py-1.5 rounded-lg text-text-muted hover:text-text transition-colors">ℂ 复数</a>
+      <a href="#comparison" class="nav-link px-2.5 py-1.5 rounded-lg text-text-muted hover:text-text transition-colors">对比</a>
+    </div>
+    <!-- 移动端汉堡菜单 -->
+    <button id="menuBtn" class="md:hidden p-2 rounded-lg hover:bg-border/50 transition-colors" aria-label="菜单">
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+  </div>
+  <!-- 移动端菜单面板 -->
+  <div id="mobileMenu" class="md:hidden hidden border-t border-border bg-surface/95 backdrop-blur-lg">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex flex-col gap-1 text-sm font-medium">
+      <a href="#overview"   class="mobile-nav-link block px-3 py-2 rounded-lg text-text-muted hover:bg-border/50 hover:text-text transition-colors">📐 数系扩张总览</a>
+      <a href="#natural"    class="mobile-nav-link block px-3 py-2 rounded-lg text-text-muted hover:bg-border/50 hover:text-text transition-colors">ℕ 自然数</a>
+      <a href="#integer"    class="mobile-nav-link block px-3 py-2 rounded-lg text-text-muted hover:bg-border/50 hover:text-text transition-colors">ℤ 整数</a>
+      <a href="#rational"   class="mobile-nav-link block px-3 py-2 rounded-lg text-text-muted hover:bg-border/50 hover:text-text transition-colors">ℚ 有理数</a>
+      <a href="#real"       class="mobile-nav-link block px-3 py-2 rounded-lg text-text-muted hover:bg-border/50 hover:text-text transition-colors">ℝ 实数</a>
+      <a href="#complex"    class="mobile-nav-link block px-3 py-2 rounded-lg text-text-muted hover:bg-border/50 hover:text-text transition-colors">ℂ 复数</a>
+      <a href="#comparison" class="mobile-nav-link block px-3 py-2 rounded-lg text-text-muted hover:bg-border/50 hover:text-text transition-colors">📊 总结对比表</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ═══════════════ Hero 头部 ═══════════════ -->
+<header id="hero" class="hero-gradient text-white py-20 sm:py-28 relative overflow-hidden">
+  <!-- 装饰数学符号 -->
+  <span class="math-bg-pattern" style="top:15%;left:8%;font-size:2.5rem;">∀</span>
+  <span class="math-bg-pattern" style="top:25%;right:10%;font-size:2rem;">∃</span>
+  <span class="math-bg-pattern" style="bottom:20%;left:15%;font-size:1.8rem;">∈</span>
+  <span class="math-bg-pattern" style="top:50%;right:20%;font-size:2.2rem;">⊂</span>
+  <span class="math-bg-pattern" style="bottom:30%;right:8%;font-size:1.6rem;">≅</span>
+  <span class="math-bg-pattern" style="top:10%;left:50%;font-size:1.5rem;">∞</span>
+  <span class="math-bg-pattern" style="bottom:15%;left:40%;font-size:2rem;">∑</span>
+
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 text-center relative z-10">
+    <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-sm border border-white/15 text-sm mb-6 reveal" style="animation-delay:0.1s">
+      <span class="w-1.5 h-1.5 rounded-full bg-accent-lt"></span>
+      公理体系 · 构造主义视角
+    </div>
+    <h1 class="font-display text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight tracking-tight reveal" style="animation-delay:0.2s">
+      数系的公理体系
+    </h1>
+    <p class="mt-4 text-lg sm:text-xl text-white/75 font-display italic reveal" style="animation-delay:0.35s">
+      从自然数到复数 —— 一部公理化的构造史诗
+    </p>
+    <p class="mt-6 text-sm sm:text-base text-white/60 max-w-2xl mx-auto leading-relaxed reveal" style="animation-delay:0.5s">
+      数学大厦的基石，始于五个简单的公理。沿着构造主义的路径，我们一步步扩张数的疆域：
+      从计数出发，经历减法、除法、极限，最终抵达代数闭包。每一步扩张，都解决了一类方程无解的问题。
+    </p>
+    <div class="mt-8 flex flex-wrap items-center justify-center gap-3 reveal" style="animation-delay:0.6s">
+      <span class="tag bg-white/12 text-white/85 border border-white/15">ℕ ⊂ ℤ ⊂ ℚ ⊂ ℝ ⊂ ℂ</span>
+      <span class="tag bg-white/12 text-white/85 border border-white/15">皮亚诺 → 等价类 → 分式域 → 完备化 → 代数闭包</span>
+    </div>
+  </div>
+</header>
+
+<main class="max-w-5xl mx-auto px-4 sm:px-6 py-12 sm:py-16 space-y-20">
+
+<!-- ═══════════════ 1. 数系扩张总览 ═══════════════ -->
+<section id="overview" class="reveal">
+  <div class="flex items-center gap-3 mb-8">
+    <span class="axiom-num text-lg" style="width:2.5rem;height:2.5rem;">📐</span>
+    <h2 class="font-display text-2xl sm:text-3xl font-bold text-text">数系扩张总览</h2>
+  </div>
+
+  <p class="text-text-muted leading-relaxed mb-8 max-w-3xl">
+    数的扩张遵循一个统一的逻辑：<strong class="text-text">每次扩张都是为了解决前一个数系中某些方程无解的问题</strong>。
+    从自然数到复数，我们经历了五次关键扩张，每一次都通过严格的公理化构造完成，而非简单的"添加新元素"。
+  </p>
+
+  <!-- 流程图 -->
+  <div class="grid grid-cols-1 sm:grid-cols-5 gap-3 items-center mb-8">
+    <div class="flow-node border-l-4" style="border-left-color:hsl(250,60%,55%);">
+      <div class="text-xs text-text-muted mb-1">第 0 层</div>
+      <div class="font-display font-bold text-lg text-primary">ℕ</div>
+      <div class="text-xs text-text-muted mt-1">自然数</div>
+      <div class="text-[0.7rem] text-text-muted/70 mt-0.5">皮亚诺公理</div>
+    </div>
+    <div class="flow-arrow text-lg sm:text-xl">⟶</div>
+    <div class="flow-node border-l-4" style="border-left-color:hsl(220,60%,55%);">
+      <div class="text-xs text-text-muted mb-1">第 1 层</div>
+      <div class="font-display font-bold text-lg text-accent">ℤ</div>
+      <div class="text-xs text-text-muted mt-1">整数</div>
+      <div class="text-[0.7rem] text-text-muted/70 mt-0.5">等价类构造</div>
+    </div>
+    <div class="flow-arrow text-lg sm:text-xl">⟶</div>
+    <div class="flow-node border-l-4" style="border-left-color:hsl(200,60%,55%);">
+      <div class="text-xs text-text-muted mb-1">第 2 层</div>
+      <div class="font-display font-bold text-lg" style="color:hsl(200,60%,45%);">ℚ</div>
+      <div class="text-xs text-text-muted mt-1">有理数</div>
+      <div class="text-[0.7rem] text-text-muted/70 mt-0.5">分式域构造</div>
+    </div>
+    <div class="flow-arrow text-lg sm:text-xl">⟶</div>
+    <div class="flow-node border-l-4" style="border-left-color:hsl(180,55%,45%);">
+      <div class="text-xs text-text-muted mb-1">第 3 层</div>
+      <div class="font-display font-bold text-lg" style="color:hsl(180,55%,40%);">ℝ</div>
+      <div class="text-xs text-text-muted mt-1">实数</div>
+      <div class="text-[0.7rem] text-text-muted/70 mt-0.5">戴德金分割</div>
+    </div>
+    <div class="flow-arrow text-lg sm:text-xl">⟶</div>
+    <div class="flow-node border-l-4" style="border-left-color:hsl(270,55%,55%);">
+      <div class="text-xs text-text-muted mb-1">第 4 层</div>
+      <div class="font-display font-bold text-lg" style="color:hsl(270,55%,50%);">ℂ</div>
+      <div class="text-xs text-text-muted mt-1">复数</div>
+      <div class="text-[0.7rem] text-text-muted/70 mt-0.5">代数闭包</div>
+    </div>
+  </div>
+
+  <!-- 扩张动机卡片 -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="axiom-card">
+      <div class="flex items-center gap-2 mb-2">
+        <span class="tag bg-tag-n text-primary font-semibold">ℕ → ℤ</span>
+      </div>
+      <p class="text-sm text-text-muted leading-relaxed">
+        方程 <span class="font-mono text-text">x + 3 = 2</span> 在 ℕ 中无解。<br/>
+        引入<strong class="text-text">减法封闭性</strong>，构造负整数。
+      </p>
+    </div>
+    <div class="axiom-card">
+      <div class="flex items-center gap-2 mb-2">
+        <span class="tag bg-tag-z text-accent font-semibold">ℤ → ℚ</span>
+      </div>
+      <p class="text-sm text-text-muted leading-relaxed">
+        方程 <span class="font-mono text-text">3x = 2</span> 在 ℤ 中无解。<br/>
+        引入<strong class="text-text">除法封闭性</strong>，构造分数。
+      </p>
+    </div>
+    <div class="axiom-card">
+      <div class="flex items-center gap-2 mb-2">
+        <span class="tag bg-tag-q font-semibold" style="color:hsl(200,60%,40%);">ℚ → ℝ</span>
+      </div>
+      <p class="text-sm text-text-muted leading-relaxed">
+        方程 <span class="font-mono text-text">x² = 2</span> 在 ℚ 中无解。<br/>
+        引入<strong class="text-text">完备性</strong>，填补"空隙"。
+      </p>
+    </div>
+    <div class="axiom-card">
+      <div class="flex items-center gap-2 mb-2">
+        <span class="tag bg-tag-c font-semibold" style="color:hsl(270,55%,48%);">ℝ → ℂ</span>
+      </div>
+      <p class="text-sm text-text-muted leading-relaxed">
+        方程 <span class="font-mono text-text">x² + 1 = 0</span> 在 ℝ 中无解。<br/>
+        引入<strong class="text-text">代数闭包</strong>，构造虚数单位。
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ 2. 自然数 ℕ ═══════════════ -->
+<section id="natural" class="reveal">
+  <div class="flex items-center gap-3 mb-8">
+    <span class="axiom-num text-lg" style="width:2.5rem;height:2.5rem;">ℕ</span>
+    <h2 class="font-display text-2xl sm:text-3xl font-bold text-text">自然数：皮亚诺公理</h2>
+  </div>
+
+  <p class="text-text-muted leading-relaxed mb-6 max-w-3xl">
+    1889 年，意大利数学家<strong class="text-text">朱塞佩·皮亚诺</strong>（Giuseppe Peano）提出了五条公理，
+    用最简洁的逻辑定义了自然数。这五条公理是整个数系大厦的基石——从它们出发，可以推导出自然数的加法、乘法乃至所有算术性质。
+  </p>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <!-- 公理卡片 -->
+    <div class="space-y-4">
+      <div class="axiom-card flex items-start gap-4">
+        <span class="axiom-num mt-0.5">1</span>
+        <div>
+          <h3 class="font-semibold text-text mb-1">零的存在性</h3>
+          <p class="text-sm text-text-muted leading-relaxed">
+            <span class="font-mono text-primary font-medium">0 ∈ ℕ</span> — 0 是一个自然数。
+            这是整个数系的起点，一个被公理直接断言的原始对象。
+          </p>
+        </div>
+      </div>
+      <div class="axiom-card flex items-start gap-4">
+        <span class="axiom-num mt-0.5">2</span>
+        <div>
+          <h3 class="font-semibold text-text mb-1">后继函数</h3>
+          <p class="text-sm text-text-muted leading-relaxed">
+            存在函数 <span class="font-mono text-accent font-medium">S: ℕ → ℕ</span>，
+            若 <span class="font-mono">n ∈ ℕ</span>，则 <span class="font-mono">S(n) ∈ ℕ</span>。
+            S(n) 称为 n 的<strong class="text-text">后继</strong>。
+          </p>
+        </div>
+      </div>
+      <div class="axiom-card flex items-start gap-4">
+        <span class="axiom-num mt-0.5">3</span>
+        <div>
+          <h3 class="font-semibold text-text mb-1">零非后继</h3>
+          <p class="text-sm text-text-muted leading-relaxed">
+            <span class="font-mono text-primary font-medium">∀n ∈ ℕ, S(n) ≠ 0</span> —
+            0 不是任何自然数的后继。这保证了自然数序列有起点。
+          </p>
+        </div>
+      </div>
+      <div class="axiom-card flex items-start gap-4">
+        <span class="axiom-num mt-0.5">4</span>
+        <div>
+          <h3 class="font-semibold text-text mb-1">后继的单射性</h3>
+          <p class="text-sm text-text-muted leading-relaxed">
+            <span class="font-mono text-accent font-medium">S(m) = S(n) ⇒ m = n</span> —
+            不同自然数有不同后继。保证序列无环、无合并。
+          </p>
+        </div>
+      </div>
+      <div class="axiom-card flex items-start gap-4">
+        <span class="axiom-num mt-0.5">5</span>
+        <div>
+          <h3 class="font-semibold text-text mb-1">归纳公理</h3>
+          <p class="text-sm text-text-muted leading-relaxed">
+            若 P(0) 成立，且 <span class="font-mono">P(n) ⇒ P(S(n))</span>，
+            则 <span class="font-mono text-primary font-medium">∀n ∈ ℕ, P(n)</span>。
+            这是数学归纳法的根基。
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 右侧：构造示意 + 性质 -->
+    <div class="space-y-5">
+      <div class="axiom-card">
+        <h3 class="font-semibold text-text mb-3 flex items-center gap-2">
+          <span class="text-sm">🔢</span> 自然数的构造
+        </h3>
+        <div class="math-block">
+0 := ∅
+1 := S(0)  = {0}
+2 := S(1)  = {0,1}
+3 := S(2)  = {0,1,2}
+...
+n := {0,1,2,...,n−1}
+        </div>
+        <p class="text-xs text-text-muted mt-3 leading-relaxed">
+          在集合论中，每个自然数被定义为所有更小自然数的集合。这是冯·诺依曼的序数定义，与皮亚诺公理完全等价。
+        </p>
+      </div>
+
+      <div class="axiom-card">
+        <h3 class="font-semibold text-text mb-3 flex items-center gap-2">
+          <span class="text-sm">🏷️</span> 代数性质
+        </h3>
+        <div class="flex flex-wrap gap-2">
+          <span class="tag bg-tag-n text-primary">加法封闭</span>
+          <span class="tag bg-tag-n text-primary">乘法封闭</span>
+          <span class="tag bg-tag-n text-primary">结合律</span>
+          <span class="tag bg-tag-n text-primary">交换律</span>
+          <span class="tag bg-tag-n text-primary">分配律</span>
+          <span class="tag bg-tag-n text-primary">良序原理</span>
+        </div>
+        <p class="text-xs text-text-muted mt-3 leading-relaxed">
+          自然数构成一个<strong class="text-text">交换半环</strong>（无加法逆元，无乘法逆元）。良序原理保证每个非空子集有最小元，这是超限归纳的基础。
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ 3. 整数 ℤ ═══════════════ -->
+<section id="integer" class="reveal">
+  <div class="flex items-center gap-3 mb-8">
+    <span class="axiom-num text-lg" style="width:2.5rem;height:2.5rem;">ℤ</span>
+    <h2 class="font-display text-2xl sm:text-3xl font-bold text-text">整数：等价类构造</h2>
+  </div>
+
+  <p class="text-text-muted leading-relaxed mb-6 max-w-3xl">
+    自然数中，方程 <span class="font-mono text-text">a + x = b</span> 仅当 a ≤ b 时有解。
+    为了使得任意减法都有意义，我们通过<strong class="text-text">自然数有序对的等价类</strong>来构造整数。
+    这一构造方法体现了现代代数的核心思想：用已知对象的关系来定义新对象。
+  </p>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="axiom-card">
+      <h3 class="font-semibold text-text mb-4 flex items-center gap-2">
+        <span class="text-sm">⚙️</span> 构造步骤
+      </h3>
+      <div class="space-y-3 text-sm text-text-muted leading-relaxed">
+        <div class="flex items-start gap-3">
+          <span class="axiom-num shrink-0" style="width:1.6rem;height:1.6rem;font-size:0.7rem;">1</span>
+          <p>在 <span class="font-mono text-text">ℕ × ℕ</span> 上定义等价关系：<br/>
+          <span class="math-block mt-1.5 text-xs">(a, b) ∼ (c, d)  ⟺  a + d = b + c</span>
+          直观上，<span class="font-mono">(a, b)</span> 代表"a − b"。</p>
+        </div>
+        <div class="flex items-start gap-3">
+          <span class="axiom-num shrink-0" style="width:1.6rem;height:1.6rem;font-size:0.7rem;">2</span>
+          <p>整数定义为<strong class="text-text">等价类</strong>：<br/>
+          <span class="math-block mt-1.5 text-xs">ℤ := (ℕ × ℕ) / ∼</span>
+          记 [(a, b)] 为 (a, b) 所在的等价类。</p>
+        </div>
+        <div class="flex items-start gap-3">
+          <span class="axiom-num shrink-0" style="width:1.6rem;height:1.6rem;font-size:0.7rem;">3</span>
+          <p>定义加法和乘法：<br/>
+          <span class="math-block mt-1.5 text-xs">[(a,b)] + [(c,d)] := [(a+c, b+d)]
+[(a,b)] · [(c,d)] := [(ac+bd, ad+bc)]</span></p>
+        </div>
+        <div class="flex items-start gap-3">
+          <span class="axiom-num shrink-0" style="width:1.6rem;height:1.6rem;font-size:0.7rem;">4</span>
+          <p>嵌入 ℕ：<span class="font-mono text-primary">n ↦ [(n, 0)]</span>，负整数：<span class="font-mono text-accent">−n ↦ [(0, n)]</span></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="space-y-5">
+      <div class="axiom-card">
+        <h3 class="font-semibold text-text mb-3 flex items-center gap-2">
+          <span class="text-sm">💡</span> 直观理解
+        </h3>
+        <p class="text-sm text-text-muted leading-relaxed mb-3">
+          有序对 <span class="font-mono text-text">(5, 2)</span> 和 <span class="font-mono text-text">(7, 4)</span> 等价，
+          因为它们都代表"3"。等价类的思想让我们用"差相等"这个关系来定义整数，而不需要先有"减法"的概念。
+        </p>
+        <div class="math-block text-xs">
+(5,2) ∼ (7,4)  因为 5+4 = 2+7 = 9
+(3,0) ∼ (8,5)  因为 3+5 = 0+8 = 8
+(0,4) ∼ (1,5)  因为 0+5 = 4+1 = 5  ← 都代表 −4
+        </div>
+      </div>
+
+      <div class="axiom-card">
+        <h3 class="font-semibold text-text mb-3 flex items-center gap-2">
+          <span class="text-sm">🏷️</span> 代数结构
+        </h3>
+        <div class="flex flex-wrap gap-2">
+          <span class="tag bg-tag-z text-accent">加法群</span>
+          <span class="tag bg-tag-z text-accent">交换环</span>
+          <span class="tag bg-tag-z text-accent">整环</span>
+          <span class="tag bg-tag-z text-accent">有序环</span>
+          <span class="tag bg-tag-z text-accent">加法逆元</span>
+        </div>
+        <p class="text-xs text-text-muted mt-3 leading-relaxed">
+          整数构成一个<strong class="text-text">交换环</strong>（有加法逆元，无乘法逆元）。它是自然数半环的<strong class="text-text">Grothendieck 群化</strong>。
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ 4. 有理数 ℚ ═══════════════ -->
+<section id="rational" class="reveal">
+  <div class="flex items-center gap-3 mb-8">
+    <span class="axiom-num text-lg" style="width:2.5rem;height:2.5rem;">ℚ</span>
+    <h2 class="font-display text-2xl sm:text-3xl font-bold text-text">有理数：分式域构造</h2>
+  </div>
+
+  <p class="text-text-muted leading-relaxed mb-6 max-w-3xl">
+    整数环中，方程 <span class="font-mono text-text">a · x = b</span>（a ≠ 0）不一定有解。
+    有理数的构造是<strong class="text-text">整环的分式域</strong>（field of fractions）的标准范例——
+    在整数对 (分子, 分母) 上定义"交叉相乘相等"的等价关系。
+  </p>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="axiom-card">
+      <h3 class="font-semibold text-text mb-4 flex items-center gap-2">
+        <span class="text-sm">⚙️</span> 构造步骤
+      </h3>
+      <div class="space-y-3 text-sm text-text-muted leading-relaxed">
+        <div class="flex items-start gap-3">
+          <span class="axiom-num shrink-0" style="width:1.6rem;height:1.6rem;font-size:0.7rem;">1</span>
+          <p>在 <span class="font-mono text-text">ℤ × (ℤ \ {0})</span> 上定义等价关系：<br/>
+          <span class="math-block mt-1.5 text-xs">(a, b) ∼ (c, d)  ⟺  a · d = b · c</span>
+          直观上，<span class="font-mono">(a, b)</span> 代表分数 a/b。</p>
+        </div>
+        <div class="flex items-start gap-3">
+          <span class="axiom-num shrink-0" style="width:1.6rem;height:1.6rem;font-size:0.7rem;">2</span>
+          <p>有理数定义为等价类：<br/>
+          <span class="math-block mt-1.5 text-xs">ℚ := (ℤ × (ℤ \ {0})) / ∼</span>
+          记 a/b 为 [(a, b)] 的简写。</p>
+        </div>
+        <div class="flex items-start gap-3">
+          <span class="axiom-num shrink-0" style="width:1.6rem;height:1.6rem;font-size:0.7rem;">3</span>
+          <p>加法和乘法：<br/>
+          <span class="math-block mt-1.5 text-xs">a/b + c/d := (ad + bc) / (bd)
+a/b · c/d := (ac) / (bd)</span></p>
+        </div>
+        <div class="flex items-start gap-3">
+          <span class="axiom-num shrink-0" style="width:1.6rem;height:1.6rem;font-size:0.7rem;">4</span>
+          <p>嵌入 ℤ：<span class="font-mono text-primary">n ↦ n/1</span>。每个非零元 a/b 有乘法逆 b/a。</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="space-y-5">
+      <div class="axiom-card">
+        <h3 class="font-semibold text-text mb-3 flex items-center gap-2">
+          <span class="text-sm">🔍</span> 约分与最简形式
+        </h3>
+        <p class="text-sm text-text-muted leading-relaxed mb-3">
+          等价关系自动处理了约分：<span class="font-mono text-text">2/4 ∼ 1/2</span> 因为 2·2 = 4·1。
+          每个等价类中有唯一的<strong class="text-text">最简分数</strong>（分子分母互质，分母为正）。
+        </p>
+        <div class="math-block text-xs">
+2/4 ∼ 3/6 ∼ 1/2   (都等价)
+−3/9 ∼ −1/3       (负分数)
+0/5 ∼ 0/1         (零元)
+        </div>
+      </div>
+
+      <div class="axiom-card">
+        <h3 class="font-semibold text-text mb-3 flex items-center gap-2">
+          <span class="text-sm">🏷️</span> 代数结构
+        </h3>
+        <div class="flex flex-wrap gap-2">
+          <span class="tag bg-tag-q font-medium" style="color:hsl(200,60%,40%);">域</span>
+          <span class="tag bg-tag-q font-medium" style="color:hsl(200,60%,40%);">有序域</span>
+          <span class="tag bg-tag-q font-medium" style="color:hsl(200,60%,40%);">阿基米德</span>
+          <span class="tag bg-tag-q font-medium" style="color:hsl(200,60%,40%);">可数集</span>
+          <span class="tag bg-tag-q font-medium" style="color:hsl(200,60%,40%);">稠密性</span>
+        </div>
+        <p class="text-xs text-text-muted mt-3 leading-relaxed">
+          有理数构成一个<strong class="text-text">有序域</strong>——最小的特征为 0 的域。它在 ℝ 中<strong class="text-text">稠密</strong>（任意两个实数之间有有理数），但<strong class="text-text">不完备</strong>。
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ 5. 实数 ℝ ═══════════════ -->
+<section id="real" class="reveal">
+  <div class="flex items-center gap-3 mb-8">
+    <span class="axiom-num text-lg" style="width:2.5rem;height:2.5rem;">ℝ</span>
+    <h2 class="font-display text-2xl sm:text-3xl font-bold text-text">实数：完备性公理</h2>
+  </div>
+
+  <p class="text-text-muted leading-relaxed mb-6 max-w-3xl">
+    有理数虽然稠密，但存在"空隙"——例如 <span class="font-mono text-text">√2</span> 不是有理数。
+    实数的构造填补了这些空隙，使数轴成为一条<strong class="text-text">连续统</strong>。
+    两种经典构造方法殊途同归：戴德金分割与柯西序列完备化。
+  </p>
+
+  <!-- 两种构造方法 -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <!-- 戴德金分割 -->
+    <div class="axiom-card border-l-4" style="border-left-color:hsl(180,55%,45%);">
+      <h3 class="font-semibold text-text mb-3 flex items-center gap-2">
+        <span class="text-lg">✂️</span> 戴德金分割
+      </h3>
+      <p class="text-sm text-text-muted leading-relaxed mb-3">
+        理查德·戴德金（1872）将实数定义为一对有理数子集 (A, B)，满足：
+      </p>
+      <ul class="text-sm text-text-muted space-y-1.5 list-disc pl-5 leading-relaxed">
+        <li><span class="font-mono text-text">A ∪ B = ℚ</span>，<span class="font-mono text-text">A ∩ B = ∅</span></li>
+        <li>A 和 B 均非空</li>
+        <li>∀a∈A, ∀b∈B，有 <span class="font-mono text-text">a &lt; b</span></li>
+        <li>A 无最大元</li>
+      </ul>
+      <div class="math-block mt-3 text-xs">
+√2 的分割：
+A = {q ∈ ℚ | q² &lt; 2 或 q ≤ 0}
+B = {q ∈ ℚ | q² > 2 且 q > 0}
+      </div>
+      <p class="text-xs text-text-muted mt-3 leading-relaxed">
+        若 B 有最小元，分割对应有理数；若 B 无最小元，分割对应无理数。
+      </p>
+    </div>
+
+    <!-- 柯西序列 -->
+    <div class="axiom-card border-l-4" style="border-left-color:hsl(220,60%,55%);">
+      <h3 class="font-semibold text-text mb-3 flex items-center gap-2">
+        <span class="text-lg">📈</span> 柯西序列完备化
+      </h3>
+      <p class="text-sm text-text-muted leading-relaxed mb-3">
+        康托尔的方法：实数定义为有理柯西序列的等价类。
+      </p>
+      <ul class="text-sm text-text-muted space-y-1.5 list-disc pl-5 leading-relaxed">
+        <li>序列 <span class="font-mono text-text">(aₙ)</span> 是<strong class="text-text">柯西列</strong>：∀ε&gt;0, ∃N, ∀m,n&gt;N: |aₘ−aₙ|&lt;ε</li>
+        <li>等价关系：<span class="font-mono text-text">(aₙ) ∼ (bₙ)</span> ⟺ <span class="font-mono text-text">lim|aₙ−bₙ| = 0</span></li>
+        <li><span class="font-mono text-text">ℝ := {有理柯西列} / ∼</span></li>
+      </ul>
+      <div class="math-block mt-3 text-xs">
+√2 的柯西列：
+a₀=1, aₙ₊₁ = (aₙ + 2/aₙ)/2
+→ 1, 1.5, 1.416..., 1.4142..., ...
+      </div>
+      <p class="text-xs text-text-muted mt-3 leading-relaxed">
+        柯西列的极限自动"创造"了无理数。ℝ 是 ℚ 在通常绝对值下的<strong class="text-text">完备化</strong>。
+      </p>
+    </div>
+  </div>
+
+  <!-- 完备性公理 -->
+  <div class="axiom-card">
+    <h3 class="font-semibold text-text mb-4 flex items-center gap-2">
+      <span class="text-lg">📜</span> 实数完备性的等价表述
+    </h3>
+    <p class="text-sm text-text-muted leading-relaxed mb-4">
+      以下命题在 ZF 集合论中等价，它们从不同角度刻画了实数的"无空隙"特性：
+    </p>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+      <div class="bg-bg rounded-lg p-3.5">
+        <span class="font-semibold text-primary">确界原理</span>
+        <p class="text-text-muted mt-1 text-xs leading-relaxed">有上界的非空子集必有上确界</p>
+      </div>
+      <div class="bg-bg rounded-lg p-3.5">
+        <span class="font-semibold text-accent">单调有界定理</span>
+        <p class="text-text-muted mt-1 text-xs leading-relaxed">单调有界数列必收敛</p>
+      </div>
+      <div class="bg-bg rounded-lg p-3.5">
+        <span class="font-semibold text-primary">闭区间套定理</span>
+        <p class="text-text-muted mt-1 text-xs leading-relaxed">嵌套闭区间套的交非空</p>
+      </div>
+      <div class="bg-bg rounded-lg p-3.5">
+        <span class="font-semibold text-accent">柯西收敛准则</span>
+        <p class="text-text-muted mt-1 text-xs leading-relaxed">柯西序列必收敛</p>
+      </div>
+      <div class="bg-bg rounded-lg p-3.5">
+        <span class="font-semibold text-primary">Bolzano-Weierstrass</span>
+        <p class="text-text-muted mt-1 text-xs leading-relaxed">有界序列必有收敛子列</p>
+      </div>
+      <div class="bg-bg rounded-lg p-3.5">
+        <span class="font-semibold text-accent">Heine-Borel</span>
+        <p class="text-text-muted mt-1 text-xs leading-relaxed">闭区间紧致（有限覆盖）</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-5 flex flex-wrap gap-2">
+    <span class="tag bg-tag-r font-medium" style="color:hsl(180,50%,35%);">完备有序域</span>
+    <span class="tag bg-tag-r font-medium" style="color:hsl(180,50%,35%);">不可数集</span>
+    <span class="tag bg-tag-r font-medium" style="color:hsl(180,50%,35%);">连通性</span>
+    <span class="tag bg-tag-r font-medium" style="color:hsl(180,50%,35%);">阿基米德</span>
+    <span class="tag bg-tag-r font-medium" style="color:hsl(180,50%,35%);">同构唯一</span>
+  </div>
+  <p class="text-xs text-text-muted mt-3 leading-relaxed">
+    实数域是<strong class="text-text">唯一的完备有序域</strong>（在同构意义下）。任何完备有序域都与 ℝ 同构——这是实数公理体系的"皇冠"结论。
+  </p>
+</section>
+
+<!-- ═══════════════ 6. 复数 ℂ ═══════════════ -->
+<section id="complex" class="reveal">
+  <div class="flex items-center gap-3 mb-8">
+    <span class="axiom-num text-lg" style="width:2.5rem;height:2.5rem;">ℂ</span>
+    <h2 class="font-display text-2xl sm:text-3xl font-bold text-text">复数：代数闭包</h2>
+  </div>
+
+  <p class="text-text-muted leading-relaxed mb-6 max-w-3xl">
+    实数域中，方程 <span class="font-mono text-text">x² + 1 = 0</span> 无解。
+    复数域 ℂ 是 ℝ 的<strong class="text-text">代数闭包</strong>——它是包含 ℝ 的最小代数闭域。
+    构造方式极其简洁：在多项式环 ℝ[x] 中模掉不可约多项式 x²+1。
+  </p>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="axiom-card">
+      <h3 class="font-semibold text-text mb-4 flex items-center gap-2">
+        <span class="text-sm">⚙️</span> 三种等价构造
+      </h3>
+      <div class="space-y-4">
+        <div>
+          <h4 class="text-sm font-semibold text-primary mb-1.5">方法一：商环构造</h4>
+          <div class="math-block text-xs">
+ℂ := ℝ[x] / (x² + 1)
+i := x + (x² + 1)   →   i² = −1
+          </div>
+          <p class="text-xs text-text-muted mt-1.5">这是最"代数"的定义——ℂ 是 ℝ 的二次扩域。</p>
+        </div>
+        <div>
+          <h4 class="text-sm font-semibold text-accent mb-1.5">方法二：有序对构造</h4>
+          <div class="math-block text-xs">
+ℂ := ℝ × ℝ
+(a,b) + (c,d) := (a+c, b+d)
+(a,b) · (c,d) := (ac−bd, ad+bc)
+i := (0, 1)
+          </div>
+          <p class="text-xs text-text-muted mt-1.5">复数即平面向量，乘法由 i²=−1 自然导出。</p>
+        </div>
+        <div>
+          <h4 class="text-sm font-semibold text-text mb-1.5" style="color:hsl(270,55%,50%);">方法三：矩阵表示</h4>
+          <div class="math-block text-xs">
+a + bi  ↦  [[a, −b],
+           [b,  a]]
+          </div>
+          <p class="text-xs text-text-muted mt-1.5">复数是形如 aI + bJ 的 2×2 实矩阵，其中 J²=−I。</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="space-y-5">
+      <div class="axiom-card">
+        <h3 class="font-semibold text-text mb-3 flex items-center gap-2">
+          <span class="text-lg">👑</span> 代数基本定理
+        </h3>
+        <p class="text-sm text-text-muted leading-relaxed mb-3">
+          高斯（1799）证明的代数基本定理：
+        </p>
+        <div class="math-block text-sm text-center py-3">
+任何非常数复系数多项式
+P(z) = aₙzⁿ + ... + a₁z + a₀
+在 ℂ 中至少有一个根。
+        </div>
+        <p class="text-xs text-text-muted mt-3 leading-relaxed">
+          这意味着 ℂ 是<strong class="text-text">代数闭域</strong>——任何代数方程在 ℂ 中都有解。
+          数系的扩张至此到达终点：ℂ 已经代数封闭，不再需要进一步扩张来解多项式方程。
+        </p>
+      </div>
+
+      <div class="axiom-card">
+        <h3 class="font-semibold text-text mb-3 flex items-center gap-2">
+          <span class="text-sm">🏷️</span> 代数结构
+        </h3>
+        <div class="flex flex-wrap gap-2">
+          <span class="tag bg-tag-c font-medium" style="color:hsl(270,55%,48%);">代数闭域</span>
+          <span class="tag bg-tag-c font-medium" style="color:hsl(270,55%,48%);">特征 0</span>
+          <span class="tag bg-tag-c font-medium" style="color:hsl(270,55%,48%);">不可序</span>
+          <span class="tag bg-tag-c font-medium" style="color:hsl(270,55%,48%);">代数完备</span>
+          <span class="tag bg-tag-c font-medium" style="color:hsl(270,55%,48%);">C/R 为 Galois</span>
+        </div>
+        <p class="text-xs text-text-muted mt-3 leading-relaxed">
+          复数域<strong class="text-text">不可排序</strong>（无法定义与域运算兼容的全序），
+          但它是<strong class="text-text">代数闭域</strong>——多项式方程求解的终极舞台。
+          ℂ/ℝ 是 2 次 Galois 扩张，Galois 群由复共轭生成。
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ 7. 总结对比表 ═══════════════ -->
+<section id="comparison" class="reveal">
+  <div class="flex items-center gap-3 mb-8">
+    <span class="axiom-num text-lg" style="width:2.5rem;height:2.5rem;">📊</span>
+    <h2 class="font-display text-2xl sm:text-3xl font-bold text-text">总结对比表</h2>
+  </div>
+
+  <div class="overflow-x-auto rounded-xl border border-border shadow-sm">
+    <table class="compare-table w-full min-w-[640px]">
+      <thead>
+        <tr>
+          <th>数系</th>
+          <th>符号</th>
+          <th>构造方法</th>
+          <th>代数结构</th>
+          <th>扩张动机</th>
+          <th>关键性质</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="font-display font-bold text-primary text-base">自然数</td>
+          <td class="font-mono font-semibold text-primary">ℕ</td>
+          <td>皮亚诺公理</td>
+          <td>交换半环</td>
+          <td>计数本源</td>
+          <td>良序、归纳法</td>
+        </tr>
+        <tr>
+          <td class="font-display font-bold text-accent text-base">整数</td>
+          <td class="font-mono font-semibold text-accent">ℤ</td>
+          <td>ℕ×ℕ / ∼</td>
+          <td>交换环（整环）</td>
+          <td>x + a = b 恒有解</td>
+          <td>加法群、有序环</td>
+        </tr>
+        <tr>
+          <td class="font-display font-bold text-base" style="color:hsl(200,60%,40%);">有理数</td>
+          <td class="font-mono font-semibold" style="color:hsl(200,60%,40%);">ℚ</td>
+          <td>分式域</td>
+          <td>有序域</td>
+          <td>a·x = b (a≠0) 恒有解</td>
+          <td>可数、稠密、不完备</td>
+        </tr>
+        <tr>
+          <td class="font-display font-bold text-base" style="color:hsl(180,50%,35%);">实数</td>
+          <td class="font-mono font-semibold" style="color:hsl(180,50%,35%);">ℝ</td>
+          <td>戴德金分割 / 柯西完备化</td>
+          <td>完备有序域</td>
+          <td>x² = 2 有解、填补空隙</td>
+          <td>不可数、连通、同构唯一</td>
+        </tr>
+        <tr>
+          <td class="font-display font-bold text-base" style="color:hsl(270,55%,48%);">复数</td>
+          <td class="font-mono font-semibold" style="color:hsl(270,55%,48%);">ℂ</td>
+          <td>ℝ[x]/(x²+1)</td>
+          <td>代数闭域</td>
+          <td>x²+1 = 0 有解</td>
+          <td>代数完备、不可序</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 包含关系可视化 -->
+  <div class="mt-10 axiom-card">
+    <h3 class="font-semibold text-text mb-4 flex items-center gap-2">
+      <span class="text-lg">🎯</span> 数系包含链
+    </h3>
+    <div class="flex flex-wrap items-center justify-center gap-2 sm:gap-3 text-sm sm:text-base">
+      <span class="px-4 py-2.5 rounded-xl bg-tag-n text-primary font-display font-bold text-lg">ℕ</span>
+      <span class="text-text-muted text-lg">⊂</span>
+      <span class="px-4 py-2.5 rounded-xl bg-tag-z text-accent font-display font-bold text-lg">ℤ</span>
+      <span class="text-text-muted text-lg">⊂</span>
+      <span class="px-4 py-2.5 rounded-xl bg-tag-q font-display font-bold text-lg" style="color:hsl(200,60%,40%);">ℚ</span>
+      <span class="text-text-muted text-lg">⊂</span>
+      <span class="px-4 py-2.5 rounded-xl bg-tag-r font-display font-bold text-lg" style="color:hsl(180,50%,35%);">ℝ</span>
+      <span class="text-text-muted text-lg">⊂</span>
+      <span class="px-4 py-2.5 rounded-xl bg-tag-c font-display font-bold text-lg" style="color:hsl(270,55%,48%);">ℂ</span>
+    </div>
+    <p class="text-xs text-text-muted mt-5 text-center leading-relaxed max-w-2xl mx-auto">
+      每一步扩张都严格保持了前一个数系的嵌入：ℕ ↪ ℤ ↪ ℚ ↪ ℝ ↪ ℂ。
+      每个嵌入都是<strong class="text-text">单同态</strong>，前一个数系的运算和序关系在更大的数系中完全保留。
+      这是公理化构造的核心要求——扩张不是"替换"，而是"兼容地扩展"。
+    </p>
+  </div>
+</section>
+
+</main>
+
+<!-- ═══════════════ Footer ═══════════════ -->
+<footer class="border-t border-border mt-16">
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 py-8 text-center">
+    <p class="text-sm text-text-muted">
+      数系的公理体系 · 从自然数到复数
+    </p>
+    <p class="text-xs text-text-muted/60 mt-1.5">
+      皮亚诺公理 → 等价类构造 → 分式域 → 完备化 → 代数闭包
+    </p>
+    <p class="text-xs text-text-muted/50 mt-3">
+      ℕ ⊂ ℤ ⊂ ℚ ⊂ ℝ ⊂ ℂ — 一部公理化的构造史诗
+    </p>
+  </div>
+</footer>
+
+<script>
+// ── 移动端菜单切换 ──
+const menuBtn = document.getElementById('menuBtn');
+const mobileMenu = document.getElementById('mobileMenu');
+menuBtn.addEventListener('click', () => {
+  mobileMenu.classList.toggle('hidden');
+});
+
+// 点击移动端菜单项后关闭菜单
+document.querySelectorAll('.mobile-nav-link').forEach(link => {
+  link.addEventListener('click', () => {
+    mobileMenu.classList.add('hidden');
+  });
+});
+
+// ── 导航栏滚动高亮 ──
+const sections = document.querySelectorAll('section[id]');
+const navLinks = document.querySelectorAll('.nav-link');
+
+function updateActiveNav() {
+  let current = '';
+  sections.forEach(section => {
+    const top = section.getBoundingClientRect().top;
+    if (top <= 120) {
+      current = section.getAttribute('id');
+    }
+  });
+  navLinks.forEach(link => {
+    const href = link.getAttribute('href');
+    link.classList.toggle('active', href === '#' + current);
+  });
+}
+
+window.addEventListener('scroll', updateActiveNav, { passive: true });
+
+// ── 滚动渐入动画 ──
+const revealEls = document.querySelectorAll('.reveal');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.style.animationPlayState = 'running';
+      observer.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.15 });
+
+revealEls.forEach(el => {
+  el.style.animationPlayState = 'paused';
+  observer.observe(el);
+});
+
+// 初始触发一次高亮
+updateActiveNav();
+</script>
+
+</body>
+</html>

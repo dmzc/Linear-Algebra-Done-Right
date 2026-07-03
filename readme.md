@@ -1,1 +1,0 @@
-"# Linear-Algebra-Done-Right" 
